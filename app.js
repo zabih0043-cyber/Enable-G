@@ -126,6 +126,7 @@
     needFood: $("#needFood"),
     needBills: $("#needBills"),
     needDebt: $("#needDebt"),
+    needDependencies: $("#needDependencies"),
     needsTotal: $("#needsTotal"),
     salaryAfterTax: $("#salaryAfterTax"),
     hoursPerWeek: $("#hoursPerWeek"),
@@ -198,6 +199,7 @@
     "needFood",
     "needBills",
     "needDebt",
+    "needDependencies",
     "currentJob",
     "salaryAfterTax",
     "hoursPerWeek",
@@ -418,7 +420,8 @@
       readNumber(elements.needRent) +
       readNumber(elements.needFood) +
       readNumber(elements.needBills) +
-      readNumber(elements.needDebt)
+      readNumber(elements.needDebt) +
+      readNumber(elements.needDependencies)
     );
   }
 
@@ -1155,6 +1158,10 @@
             ["Food and living essentials", formatCurrency(readNumber(elements.needFood))],
             ["Bills, travel, petrol, utilities", formatCurrency(readNumber(elements.needBills))],
             ["Debt costs", formatCurrency(readNumber(elements.needDebt))],
+            [
+              "Dependencies / people you support",
+              formatCurrency(readNumber(elements.needDependencies)),
+            ],
           ],
           theme: "grid",
           headStyles: { fillColor: [38, 98, 67] },

@@ -523,6 +523,7 @@ h1 {
 
 .hero-side {
   display: grid;
+  gap: 18px;
 }
 
 .side-card {
@@ -560,6 +561,12 @@ h1 {
 
 .side-list li + li {
   margin-top: 10px;
+}
+
+.side-copy {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 0.95rem;
 }
 
 .layout {

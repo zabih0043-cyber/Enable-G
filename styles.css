@@ -221,13 +221,34 @@ h1 {
 }
 
 .brand-name {
-  font-size: 1.34rem;
+  font-size: 1.54rem;
   font-weight: 700;
+  line-height: 1.08;
+  text-wrap: balance;
 }
 
 .brand-tagline {
   font-size: 0.94rem;
   color: var(--ink-soft);
+}
+
+.brand-version {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 6px;
+  padding: 1px 8px;
+  border: 1px solid rgba(38, 98, 67, 0.14);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.68);
+  color: var(--accent-deep);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  vertical-align: middle;
+}
+
+.pill .brand-version {
+  background: rgba(255, 255, 255, 0.84);
 }
 
 .nav-meta {
@@ -494,6 +515,10 @@ h1 {
   letter-spacing: -0.03em;
 }
 
+.value-negative {
+  color: var(--danger);
+}
+
 .stat-note,
 .status-copy,
 .insight-copy,
@@ -519,6 +544,10 @@ h1 {
 .card-subtitle {
   margin: 8px 0 0;
   font-size: 0.95rem;
+}
+
+.copy-negative {
+  color: var(--danger);
 }
 
 .hero-side {
@@ -729,6 +758,7 @@ h1 {
 input[type="text"],
 input[type="date"],
 input[type="number"],
+select,
 textarea {
   width: 100%;
   min-width: 0;
@@ -752,11 +782,13 @@ textarea::placeholder {
 }
 
 input:hover,
+select:hover,
 textarea:hover {
   border-color: rgba(104, 190, 69, 0.24);
 }
 
 input:focus,
+select:focus,
 textarea:focus {
   border-color: rgba(104, 190, 69, 0.38);
   box-shadow: 0 0 0 3px var(--focus);
@@ -1040,6 +1072,7 @@ textarea {
     max-width: none;
     justify-self: stretch;
   }
+
 }
 
 @media (min-width: 700px) {

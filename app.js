@@ -4,120 +4,282 @@
   const WEEKS_PER_MONTH = 52 / 12;
   const DEFAULT_TARGET = 20000;
   const DEFAULT_MIN_RATE = 150;
-  const STORAGE_KEY = "enable-g-skills-income-v2";
+  const STORAGE_KEY = "enable-g-spending-income-sa-v1";
   const SAVE_DEBOUNCE_MS = 240;
   const IDEA_REFRESH_DEBOUNCE_MS = 160;
   const IDEA_REFRESH_IDS = new Set(["currentJob", "skillsList", "experienceList"]);
+  const LOCALE = "en-ZA";
+  const CURRENCY_SYMBOL = "R";
+  const RATE_ROUNDING_STEP = 10;
   const PDF_SCRIPT_URLS = [
     "https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js",
     "https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js",
   ];
-
   const IDEA_LIBRARY = [
     {
       id: "admin",
-      keywords: ["admin", "office", "data", "typing", "organizing", "assistant"],
+      keywords: [
+        "admin",
+        "office",
+        "data",
+        "typing",
+        "organizing",
+        "assistant",
+        "reception",
+        "clerical",
+        "secretary",
+        "booking",
+      ],
       title: "Virtual admin support",
-      description: "Inbox help, booking support, quotes, and simple document work.",
-      rate: 180,
+      description: "Inbox help, booking support, quotes, & simple document work.",
+      rate: 160,
       hours: 4,
     },
     {
       id: "writing",
-      keywords: ["writing", "writer", "content", "copy", "cv", "resume"],
-      title: "CV and writing support",
+      keywords: ["writing", "writer", "content", "copy", "cv", "resume", "editing", "proofreading"],
+      title: "CV & writing support",
       description: "Help people with CVs, cover letters, bios, or short business copy.",
-      rate: 220,
+      rate: 200,
       hours: 3,
     },
     {
       id: "social",
-      keywords: ["social", "marketing", "facebook", "instagram", "content"],
+      keywords: ["social", "marketing", "facebook", "instagram", "content", "tiktok", "promo", "advertising"],
       title: "Social media content help",
-      description: "Create captions, basic calendars, and posting support for small brands.",
-      rate: 240,
+      description: "Create captions, basic calendars, & posting support for small brands.",
+      rate: 180,
       hours: 4,
     },
     {
       id: "driving",
-      keywords: ["driving", "driver", "delivery", "transport", "errand"],
-      title: "Errands and delivery runs",
+      keywords: ["driving", "driver", "delivery", "transport", "errand", "courier", "uber", "parcel", "van"],
+      title: "Errands & delivery runs",
       description: "Offer local errands, collections, or delivery support on flexible hours.",
-      rate: 170,
+      rate: 140,
       hours: 5,
     },
     {
+      id: "property",
+      keywords: ["property", "estate", "real estate", "letting", "listing", "viewing", "realtor", "agent"],
+      title: "Property admin & viewing support",
+      description: "Help with listings, viewing prep, follow-up calls, & simple admin for agents or landlords.",
+      rate: 180,
+      hours: 4,
+    },
+    {
       id: "beauty",
-      keywords: ["manicure", "beauty", "hair", "nails", "makeup"],
-      title: "Mobile beauty service",
+      keywords: ["manicure", "beauty", "hair", "nails", "makeup", "braiding", "barber", "lashes", "facial"],
+      title: "Mobile beauty side hustle",
       description: "Use beauty skills for home visits, event prep, or quick weekend sessions.",
-      rate: 260,
+      rate: 240,
       hours: 4,
     },
     {
       id: "care",
-      keywords: ["child", "care", "babysit", "elder", "support"],
+      keywords: ["child", "care", "babysit", "elder", "support", "carer", "caregiver", "nanny", "companion"],
       title: "Care support sessions",
       description: "Offer after-school care, babysitting, or practical support visits.",
-      rate: 180,
+      rate: 150,
       hours: 6,
     },
     {
       id: "pets",
       keywords: ["pet", "dog", "animal", "cat", "walking"],
-      title: "Pet sitting and dog walking",
-      description: "Turn reliability and routine into short paid visits during the week.",
-      rate: 180,
+      title: "Pet sitting & dog walking",
+      description: "Turn reliability & routine into short paid visits during the week.",
+      rate: 140,
       hours: 4,
     },
     {
       id: "cleaning",
-      keywords: ["cleaning", "organizing", "house", "home", "laundry"],
-      title: "Home reset and organizing",
+      keywords: ["cleaning", "organizing", "house", "home", "laundry", "cleaner", "domestic", "housekeeping"],
+      title: "Home reset & organizing",
       description: "Offer decluttering, cupboard resets, or move-in support sessions.",
-      rate: 190,
+      rate: 150,
       hours: 5,
     },
     {
+      id: "laundry",
+      keywords: ["laundry", "ironing", "washing", "linen", "uniform", "clothes"],
+      title: "Laundry & ironing help",
+      description: "Offer wash, fold, ironing, or linen refresh support for busy households.",
+      rate: 140,
+      hours: 5,
+    },
+    {
+      id: "garden",
+      keywords: ["garden", "gardening", "lawn", "mowing", "weeding", "hedge", "outdoor", "yard"],
+      title: "Garden tidy & outdoor help",
+      description: "Take on mowing, weeding, leaf clearing, & simple outdoor tidy-up jobs.",
+      rate: 150,
+      hours: 5,
+    },
+    {
+      id: "handyman",
+      keywords: ["handyman", "repair", "maintenance", "diy", "assembly", "flatpack", "fixing", "painting", "labour"],
+      title: "Handy help & flat-pack assembly",
+      description: "Offer simple repairs, flat-pack assembly, painting prep, & practical home setup help.",
+      rate: 180,
+      hours: 4,
+    },
+    {
       id: "tech",
-      keywords: ["tech", "computer", "phone", "device", "support", "it"],
+      keywords: ["tech", "computer", "phone", "device", "support", "it", "setup", "wifi", "printer"],
       title: "Basic tech support",
-      description: "Help with phone setup, app installs, printer issues, and troubleshooting.",
+      description: "Help with phone setup, app installs, printer issues, & troubleshooting.",
       rate: 250,
       hours: 3,
     },
     {
       id: "teaching",
-      keywords: ["teach", "tutor", "school", "education", "homework"],
-      title: "Tutoring and homework help",
-      description: "Support school learners with revision, reading, and homework structure.",
-      rate: 240,
+      keywords: ["teach", "tutor", "school", "education", "homework", "teaching assistant", "reading", "maths", "english"],
+      title: "Tutoring & homework help",
+      description: "Support school learners with revision, reading, & homework structure.",
+      rate: 220,
       hours: 4,
     },
     {
       id: "food",
-      keywords: ["cook", "baking", "food", "meal", "kitchen"],
+      keywords: ["cook", "baking", "food", "meal", "kitchen", "chef", "catering", "baker", "cafe"],
       title: "Meal prep or baking orders",
       description: "Package what you make best into pre-orders for families or offices.",
+      rate: 160,
+      hours: 4,
+    },
+    {
+      id: "hospitality",
+      keywords: ["hospitality", "waiter", "waitress", "server", "restaurant", "bar", "catering", "event", "events"],
+      title: "Event & hospitality support",
+      description: "Pick up setup, serving, clearing, or hosting support for local events & functions.",
+      rate: 150,
+      hours: 5,
+    },
+    {
+      id: "sewing",
+      keywords: ["sewing", "alteration", "alterations", "tailor", "hemming", "stitch", "fashion"],
+      title: "Clothing repairs & alterations",
+      description: "Turn sewing skills into simple repairs, hemming, & clothing adjustment jobs.",
+      rate: 160,
+      hours: 4,
+    },
+    {
+      id: "moving",
+      keywords: ["moving", "removals", "packing", "unpacking", "furniture", "lifting"],
+      title: "Moving & packing help",
+      description: "Help with packing, lifting, furniture setup, & move-day support.",
+      rate: 150,
+      hours: 5,
+    },
+    {
+      id: "sales",
+      keywords: ["sales", "retail", "customer", "promotion", "shop", "cashier", "store", "market", "stall", "merchandising"],
+      title: "Weekend sales support",
+      description: "Help small businesses with pop-ups, markets, or promotion shifts.",
+      rate: 140,
+      hours: 5,
+    },
+    {
+      id: "bookkeeping",
+      keywords: ["bookkeeping", "bookkeeper", "accounts", "accounting", "invoice", "invoicing", "finance", "payroll", "quickbooks", "sage"],
+      title: "Bookkeeping & invoice support",
+      description: "Help sole traders or small businesses stay on top of invoices, receipts, and simple monthly records.",
       rate: 180,
       hours: 4,
     },
     {
-      id: "sales",
-      keywords: ["sales", "retail", "customer", "promotion", "shop"],
-      title: "Weekend sales support",
-      description: "Help small businesses with pop-ups, markets, or promotion shifts.",
+      id: "translation",
+      keywords: ["translation", "translator", "interpreting", "interpreter", "bilingual", "language", "arabic", "french", "spanish", "urdu"],
+      title: "Translation & interpreting help",
+      description: "Use language skills for document translation, call support, or short interpreting sessions.",
+      rate: 220,
+      hours: 3,
+    },
+    {
+      id: "photo",
+      keywords: ["photo", "photography", "photographer", "camera", "portrait", "photoshoot", "wedding", "event photo", "product photo", "editing photos"],
+      title: "Photography sessions & product shots",
+      description: "Offer portraits, event photos, or simple product shots for local sellers and small brands.",
+      rate: 280,
+      hours: 3,
+    },
+    {
+      id: "video",
+      keywords: ["video", "videography", "video editing", "editing video", "reels", "youtube", "podcast", "capcut", "premiere", "short-form"],
+      title: "Video editing & short clips",
+      description: "Edit reels, TikToks, YouTube clips, or simple promo videos for creators and small businesses.",
+      rate: 220,
+      hours: 4,
+    },
+    {
+      id: "web",
+      keywords: ["website", "wordpress", "wix", "squarespace", "shopify", "web design", "web developer", "seo", "landing page", "no-code"],
+      title: "Website setup & updates",
+      description: "Build simple pages, update listings, or refresh websites for local businesses that need quick support.",
+      rate: 240,
+      hours: 3,
+    },
+    {
+      id: "transcription",
+      keywords: ["transcription", "transcribe", "audio", "captions", "subtitles", "notes", "typing fast", "minute taking", "dictation", "proofread audio"],
+      title: "Transcription & typing help",
+      description: "Turn audio into notes, captions, or typed records for meetings, interviews, and online content.",
+      rate: 140,
+      hours: 4,
+    },
+    {
+      id: "valeting",
+      keywords: ["car wash", "valet", "valeting", "detailing", "car cleaning", "vehicle cleaning", "polish", "interior cleaning", "mobile wash", "cars"],
+      title: "Car cleaning & valeting",
+      description: "Offer basic mobile washes, interior cleans, and tidy-up services for busy drivers.",
+      rate: 160,
+      hours: 4,
+    },
+    {
+      id: "music",
+      keywords: ["music", "piano", "guitar", "singing", "voice", "violin", "drums", "music lesson", "instrument", "choir"],
+      title: "Music lessons & practice support",
+      description: "Teach beginner lessons or help learners with regular practice, technique, and confidence.",
+      rate: 220,
+      hours: 3,
+    },
+    {
+      id: "fitness",
+      keywords: ["fitness", "gym", "exercise", "workout", "coach", "personal trainer", "yoga", "pilates", "running", "wellness"],
+      title: "Fitness coaching & walk sessions",
+      description: "Offer beginner-friendly workouts, walking sessions, or accountability support if you have fitness experience.",
+      rate: 200,
+      hours: 4,
+    },
+    {
+      id: "crafts",
+      keywords: ["craft", "crochet", "knitting", "jewellery", "candles", "soap", "handmade", "etsy", "gift", "personalised"],
+      title: "Craft orders & handmade gifts",
+      description: "Turn making skills into paid custom orders for gifts, decorations, or personal items.",
+      rate: 160,
+      hours: 4,
+    },
+    {
+      id: "housesitting",
+      keywords: ["house sitting", "house sitter", "key holding", "keyholder", "home check", "property check", "airbnb", "guest check-in", "check in", "check-out"],
+      title: "House sitting & key handovers",
+      description: "Help with key collection, guest check-ins, and short home-check visits for landlords or travellers.",
+      rate: 150,
+      hours: 4,
+    },
+    {
+      id: "calls",
+      keywords: ["call handling", "customer support", "phone support", "appointment setting", "appointments", "telemarketing", "lead generation", "crm", "follow-up calls", "call centre"],
+      title: "Call handling & appointment setting",
+      description: "Support trades, clinics, or small businesses with call-backs, lead follow-up, and diary booking.",
       rate: 170,
-      hours: 5,
+      hours: 4,
     },
   ];
 
-  const DEFAULT_IDEAS = [
-    IDEA_LIBRARY[0],
-    IDEA_LIBRARY[3],
-    IDEA_LIBRARY[8],
-    IDEA_LIBRARY[10],
-  ];
+  const DEFAULT_IDEAS = ["admin", "driving", "cleaning", "sales"]
+    .map((id) => IDEA_LIBRARY.find((idea) => idea.id === id))
+    .filter(Boolean);
 
   const $ = (selector) => document.querySelector(selector);
 
@@ -235,20 +397,21 @@
   function formatCurrency(amount) {
     const value = Number.isFinite(amount) ? amount : 0;
     const rounded = Math.round(value);
-    const formatted = rounded
-      .toLocaleString("en-ZA", {
+    const sign = rounded < 0 ? "-" : "";
+    const formatted = Math.abs(rounded)
+      .toLocaleString(LOCALE, {
         minimumFractionDigits: 0,
         maximumFractionDigits: 0,
       })
       .replace(/\s/g, " ");
-    return `R${formatted}`;
+    return `${sign}${CURRENCY_SYMBOL}${formatted}`;
   }
 
   function formatHours(hours) {
     const value = Number.isFinite(hours) ? hours : 0;
     const rounded = value > 0 ? Math.ceil(value) : 0;
     return rounded
-      .toLocaleString("en-ZA", {
+      .toLocaleString(LOCALE, {
         minimumFractionDigits: 0,
         maximumFractionDigits: 0,
       })
@@ -258,7 +421,7 @@
   function formatPercent(value) {
     const safeValue = Number.isFinite(value) ? value : 0;
     const formatted = safeValue
-      .toLocaleString("en-ZA", {
+      .toLocaleString(LOCALE, {
         minimumFractionDigits: 0,
         maximumFractionDigits: 0,
       })
@@ -270,9 +433,9 @@
     return Math.min(max, Math.max(min, value));
   }
 
-  function roundUpToNearestTen(value) {
+  function roundUpToNearestStep(value, step = 1) {
     if (value <= 0) return DEFAULT_MIN_RATE;
-    return Math.ceil(value / 10) * 10;
+    return Math.ceil(value / step) * step;
   }
 
   function setText(node, value) {
@@ -331,8 +494,8 @@
 
     row.innerHTML = `
       <td>
-        <label class="sr-only" for="svcDesc${index}">Service description</label>
-        <input id="svcDesc${index}" type="text" placeholder="e.g. Weekend car wash service" />
+        <label class="sr-only" for="svcDesc${index}">Side hustle description</label>
+        <input id="svcDesc${index}" type="text" placeholder="e.g. Admin" />
       </td>
       <td class="right">
         <label class="sr-only" for="svcHours${index}">Hours per week</label>
@@ -343,7 +506,7 @@
         <input id="svcRate${index}" type="number" inputmode="decimal" min="0" step="1" placeholder="0" />
       </td>
       <td class="right">
-        <output id="svcMonthly${index}" aria-live="polite">R0</output>
+        <output id="svcMonthly${index}" aria-live="polite">${CURRENCY_SYMBOL}0</output>
       </td>
       <td class="right">
         <button class="btn btn-ghost btn-remove" type="button" data-action="remove-service">
@@ -398,11 +561,11 @@
       if (rows.length <= 1) {
         button.disabled = true;
         button.setAttribute("aria-disabled", "true");
-        button.title = "Add another service before removing this row";
+        button.title = "Add another side hustle before removing this row";
       } else {
         button.disabled = false;
         button.setAttribute("aria-disabled", "false");
-        button.title = "Remove this service";
+        button.title = "Remove this side hustle";
       }
     });
   }
@@ -469,7 +632,7 @@
       extraIncomeNeeded > 0 ? clamp((services.monthly / extraIncomeNeeded) * 100, 0, 100) : 0;
     const recommendedRate = Math.max(
       DEFAULT_MIN_RATE,
-      roundUpToNearestTen(currentHourlyRate || DEFAULT_MIN_RATE)
+      roundUpToNearestStep(currentHourlyRate || DEFAULT_MIN_RATE, RATE_ROUNDING_STEP)
     );
 
     return {
@@ -497,14 +660,14 @@
   function updateStatus(plan) {
     let badgeText = "Setup needed";
     let badgeClass = "tone-neutral";
-    let statusText = "Add your income, target, and rate to unlock a full plan view.";
+    let statusText = "Add your income, target, & rate to unlock a full plan view.";
     let summaryMessage =
-      "Start with your income, needs, and weekly hours to build a realistic plan.";
+      "Start with your income, needs, & weekly hours to build a realistic plan.";
 
     if (!plan.currentIncome) {
       badgeText = "Income needed";
       badgeClass = "tone-warning";
-      statusText = "Add your current income to see the gap between where you are and your goal.";
+      statusText = "Add your current income to see the gap between where you are & your goal.";
     } else if (plan.needsCoverage < 0) {
       badgeText = "Needs not covered";
       badgeClass = "tone-danger";
@@ -516,7 +679,7 @@
     } else if (plan.remainingGap > 0 && plan.servicesMonthly > 0) {
       badgeText = "Plan in progress";
       badgeClass = "tone-warning";
-      statusText = `Your service plan has closed ${formatPercent(
+      statusText = `Your side hustle plan has closed ${formatPercent(
         plan.serviceCoverage
       )} of the extra-income gap.`;
       summaryMessage = `You still need ${formatCurrency(
@@ -529,18 +692,18 @@
         plan.extraIncomeNeeded
       )} extra each month, or about ${formatHours(plan.extraHoursNeeded)} extra hours per week.`;
       summaryMessage =
-        "Add one or two services below to see how your target becomes more realistic.";
+        "Add one or two side hustles below to see how your target becomes more realistic.";
     } else {
       badgeText = "Target covered";
       badgeClass = "tone-success";
       statusText =
-        "Your current income plus planned services cover the target. Focus on consistency and scheduling.";
+        "Your current income plus planned side hustles cover the target. Focus on consistency & scheduling.";
       summaryMessage =
-        "Your plan currently meets the target. Keep checking that hours and rates stay realistic.";
+        "Your plan currently meets the target. Keep checking that hours & rates stay realistic.";
     }
 
     if (plan.minimumRateInput > 0 && plan.minimumRateInput < DEFAULT_MIN_RATE) {
-      statusText += " Raise your minimum rate to at least R150/hr for a healthier plan.";
+      statusText += ` Raise your minimum rate to at least ${CURRENCY_SYMBOL}${DEFAULT_MIN_RATE}/hr for a healthier plan.`;
     }
 
     if (elements.planStatusBadge) {
@@ -564,16 +727,20 @@
 
     setText(
       elements.minRateHint,
-      plan.minimumRateInput > 0 && plan.minimumRateInput < DEFAULT_MIN_RATE
-        ? "Rates below R150/hr usually stretch the hours too far. Try raising this to at least R150/hr."
-        : `Suggested floor: R${plan.recommendedRate}/hr based on your current earning power.`
+      plan.minimumRateInput <= 0
+        ? `Suggested minimum: ${CURRENCY_SYMBOL}${DEFAULT_MIN_RATE}/h based on your current earnings hourly rate.`
+        : plan.minimumRateInput < DEFAULT_MIN_RATE
+          ? `Rate is below ${CURRENCY_SYMBOL}${DEFAULT_MIN_RATE}/hr. Try and raise it to at least ${CURRENCY_SYMBOL}${DEFAULT_MIN_RATE}.`
+          : plan.minimumRateInput > DEFAULT_MIN_RATE
+            ? "Your hourly rate is good. It is above the recommended minimum."
+            : "Your hourly rate is fine. It meets the recommended minimum."
     );
 
     setText(
       elements.targetHint,
       getTargetValue() < DEFAULT_TARGET
-        ? "This target is below the Enable G recommendation of R20,000 per month."
-        : "Enable G recommends aiming for at least R20,000 per month."
+        ? `This target is below the Enable G recommendation of ${CURRENCY_SYMBOL}20,000 per month.`
+        : `Enable G recommends aiming for at least ${CURRENCY_SYMBOL}20,000 per month.`
     );
 
     setText(
@@ -595,28 +762,28 @@
 
     if (plan.needsCoverage < 0 && plan.currentIncome > 0) {
       steps.push(
-        `Close the ${formatCurrency(Math.abs(plan.needsCoverage))} gap between current income and monthly needs.`
+        `Close the ${formatCurrency(Math.abs(plan.needsCoverage))} gap between current income & monthly needs.`
       );
     }
 
     if (plan.minimumRateInput > 0 && plan.minimumRateInput < DEFAULT_MIN_RATE) {
-      steps.push("Lift your minimum service rate to at least R150/hr.");
+      steps.push(`Lift your minimum side hustle rate to at least ${CURRENCY_SYMBOL}${DEFAULT_MIN_RATE}/hr.`);
     }
 
     if (plan.remainingServiceGap > 0 && plan.currentIncome > 0) {
       steps.push(
-        `Add about ${formatHours(plan.remainingServiceHours)} more service hours per week or increase pricing to close the remaining ${formatCurrency(
+        `Add about ${formatHours(plan.remainingServiceHours)} more side hustle hours per week or increase pricing to close the remaining ${formatCurrency(
           plan.remainingServiceGap
         )}.`
       );
     }
 
     if (!elements.skillsList?.value.trim() && !elements.experienceList?.value.trim()) {
-      steps.push("Add skills or past roles to unlock more targeted service ideas.");
+      steps.push("Add skills or past roles to unlock more targeted side hustle ideas.");
     }
 
     if (!steps.length) {
-      steps.push("Your plan is on track. Next, confirm the schedule, customers, and pricing.");
+      steps.push("Your plan is on track. Next, confirm the schedule, customers, & pricing.");
       steps.push("Export the PDF when you are ready to share or review the plan.");
     }
 
@@ -634,25 +801,67 @@
     });
   }
 
+  function normalizeIdeaText(text) {
+    return String(text || "")
+      .toLowerCase()
+      .replace(/&/g, " and ")
+      .replace(/[^a-z0-9]+/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+
   function getIdeaProfileText() {
-    return [
-      elements.currentJob?.value || "",
-      elements.skillsList?.value || "",
-      elements.experienceList?.value || "",
-    ]
-      .join(" ")
-      .toLowerCase();
+    return normalizeIdeaText(
+      [
+        elements.currentJob?.value || "",
+        elements.skillsList?.value || "",
+        elements.experienceList?.value || "",
+      ].join(" ")
+    );
+  }
+
+  function scoreIdeaMatch(idea, profileText, tokenSet) {
+    let score = 0;
+
+    idea.keywords.forEach((keyword) => {
+      const normalizedKeyword = normalizeIdeaText(keyword);
+      if (!normalizedKeyword) return;
+
+      const keywordParts = normalizedKeyword.split(" ");
+
+      if (keywordParts.length > 1) {
+        if (profileText.includes(normalizedKeyword)) {
+          score += 8 + keywordParts.length;
+        } else if (keywordParts.every((part) => tokenSet.has(part))) {
+          score += 5 + keywordParts.length;
+        }
+        return;
+      }
+
+      if (tokenSet.has(normalizedKeyword)) {
+        score += 4;
+      }
+    });
+
+    return score;
   }
 
   function getIdeaMatches(profileText = getIdeaProfileText()) {
-
     if (!profileText.trim()) return DEFAULT_IDEAS;
 
-    const matches = IDEA_LIBRARY.filter((idea) =>
-      idea.keywords.some((keyword) => profileText.includes(keyword))
-    );
+    const tokenSet = new Set(profileText.split(" ").filter(Boolean));
+    const matches = IDEA_LIBRARY
+      .map((idea, index) => ({
+        idea,
+        index,
+        score: scoreIdeaMatch(idea, profileText, tokenSet),
+      }))
+      .filter((entry) => entry.score > 0)
+      .sort((left, right) => right.score - left.score || left.index - right.index)
+      .slice(0, 6)
+      .map((entry) => entry.idea);
 
-    return matches.length ? Array.from(new Set(matches)).slice(0, 6) : DEFAULT_IDEAS;
+    return matches.length ? matches : DEFAULT_IDEAS;
   }
 
   function renderIdeas(force = false) {
@@ -682,7 +891,7 @@
         <p>${idea.description}</p>
         <div class="idea-meta">
           <span class="idea-chip">${formatHours(idea.hours)} hrs/wk</span>
-          <span class="idea-chip">R${idea.rate}/hr</span>
+          <span class="idea-chip">${CURRENCY_SYMBOL}${idea.rate}/hr</span>
         </div>
       `;
       elements.serviceIdeas.appendChild(button);
@@ -745,12 +954,21 @@
     setText(elements.goalProgressValue, formatPercent(plan.goalProgress));
     setText(elements.gapRemainingValue, formatCurrency(plan.remainingGap));
     setText(elements.totalIncomeValue, formatCurrency(plan.totalIncomeWithServices));
-    setText(elements.needsCoverage, formatCurrency(Math.abs(plan.needsCoverage)));
-    setText(elements.recommendedRate, `R${plan.recommendedRate}/hr`);
+    setText(elements.needsCoverage, formatCurrency(plan.needsCoverage));
+    setText(elements.recommendedRate, `${CURRENCY_SYMBOL}${plan.recommendedRate}/hr`);
     setText(elements.remainingGapInline, formatCurrency(plan.remainingGap));
     setText(elements.servicesHoursPlanned, formatHours(plan.servicesHours));
     setText(elements.servicesCoverage, formatPercent(plan.serviceCoverage));
     setText(elements.remainingGap, formatCurrency(plan.remainingGap));
+
+    elements.needsCoverage?.classList.toggle(
+      "value-negative",
+      plan.currentIncome > 0 && plan.needsCoverage < 0
+    );
+    elements.needsCoverageText?.classList.toggle(
+      "copy-negative",
+      plan.currentIncome > 0 && plan.needsCoverage < 0
+    );
 
     setMeter(elements.goalMeterFill, plan.goalProgress);
     setMeter(elements.summaryGoalFill, plan.goalProgress);
@@ -765,40 +983,54 @@
     } else {
       setText(
         elements.needsCoverageText,
-        "Add your current income and needs to see whether essentials are covered."
+        "Add your current income & needs to see whether essentials are covered."
       );
     }
 
-    if (plan.currentHourlyRate > 0) {
+    if (plan.currentHourlyRate > 0 && Math.round(plan.currentHourlyRate) >= DEFAULT_MIN_RATE) {
       setText(
         elements.rateGuidanceText,
         `Your current hourly rate is about ${formatCurrency(
           plan.currentHourlyRate
-        )}. Use that as a baseline when pricing services.`
+        )}. Use that as a baseline when pricing side hustles.`
+      );
+    } else if (plan.currentHourlyRate > 0) {
+      setText(
+        elements.rateGuidanceText,
+        `Your current hourly rate is about ${formatCurrency(
+          plan.currentHourlyRate
+        )}. That is below the recommended rate, so use ${CURRENCY_SYMBOL}${plan.recommendedRate}/hr as your baseline when pricing side hustles.`
       );
     } else {
       setText(
         elements.rateGuidanceText,
-        "Add weekly hours and income to estimate a fair minimum rate."
+        "Add weekly hours & income to estimate a fair minimum rate."
       );
     }
 
-    if (plan.remainingGap > 0 && plan.servicesMonthly > 0) {
+    if (plan.currentIncome > 0 && plan.needsCoverage < 0) {
       setText(
         elements.remainingGapText,
-        `Your current service plan still leaves ${formatCurrency(
+        `Your income does not yet cover monthly needs. You are short by ${formatCurrency(
+          Math.abs(plan.needsCoverage)
+        )} before the wider target gap.`
+      );
+    } else if (plan.remainingGap > 0 && plan.servicesMonthly > 0) {
+      setText(
+        elements.remainingGapText,
+        `Your current side hustle plan still leaves ${formatCurrency(
           plan.remainingGap
         )} to close.`
       );
     } else if (plan.remainingGap === 0 && plan.totalIncomeWithServices > 0) {
       setText(
         elements.remainingGapText,
-        "Your current income and planned services now cover the target."
+        "Your current income & planned side hustles now cover the target."
       );
     } else {
       setText(
         elements.remainingGapText,
-        "Add service lines to see how much of the target is still open."
+        "Add side hustle lines to see how much of the target is still open."
       );
     }
   }
@@ -920,7 +1152,7 @@
   }
 
   function resetAll() {
-    if (!window.confirm("Clear all fields and remove the saved local copy of this worksheet?")) {
+    if (!window.confirm("Clear all fields & remove the saved local copy of this worksheet?")) {
       return;
     }
 
@@ -942,7 +1174,7 @@
       } else if (id === "targetMonthlyIncome" || id === "targetMonthly") {
         element.value = String(DEFAULT_TARGET);
       } else if (id === "minHourlyRate") {
-        element.value = String(DEFAULT_MIN_RATE);
+        element.value = "";
       } else {
         element.value = "";
       }
@@ -956,7 +1188,7 @@
       // Ignore storage errors during reset.
     }
 
-    setText(elements.saveStatus, "Private and autosaved locally");
+    setText(elements.saveStatus, "Private & autosaved locally");
     lastIdeasSignature = "";
     renderIdeas(true);
     recalcAndPersist();
@@ -1070,9 +1302,9 @@
       `Target monthly income: ${formatCurrency(plan.targetIncome)}`,
       `Extra income needed: ${formatCurrency(plan.extraIncomeNeeded)}`,
       `Extra hours needed per week: ${formatHours(plan.extraHoursNeeded)}`,
-      `Planned service income: ${formatCurrency(plan.servicesMonthly)}`,
+      `Planned side hustle income: ${formatCurrency(plan.servicesMonthly)}`,
       `Remaining gap: ${formatCurrency(plan.remainingGap)}`,
-      `Income with services: ${formatCurrency(plan.totalIncomeWithServices)}`,
+      `Income with side hustles: ${formatCurrency(plan.totalIncomeWithServices)}`,
     ];
   }
 
@@ -1110,10 +1342,18 @@
       const { jsPDF } = jsPdfModule;
       const doc = new jsPDF({ unit: "mm", format: "a4" });
       const logoImage = $(".brand-logo");
+      const logoX = 14;
+      const logoY = 10;
+      const logoSize = 24;
+      const titleY = 18;
+      const detailsStartY = 38;
+      const summaryTitleY = 58;
+      const summaryLineStartY = 64;
+      const pageCenterX = doc.internal.pageSize.getWidth() / 2;
 
       try {
         const logoDataUrl = await imageElementToDataUrl(logoImage);
-        doc.addImage(logoDataUrl, "PNG", 14, 10, 16, 16);
+        doc.addImage(logoDataUrl, "PNG", logoX, logoY, logoSize, logoSize);
       } catch (error) {
         // Continue without a logo if it cannot be exported.
       }
@@ -1124,19 +1364,19 @@
 
       doc.setFont("helvetica", "bold");
       doc.setFontSize(16);
-      doc.text("Enable G - Skills & Income", 34, 18);
+      doc.text("Enable G - Spending & Income Tool SA", pageCenterX, titleY, { align: "center" });
 
       doc.setFont("helvetica", "normal");
       doc.setFontSize(10);
-      doc.text(`Name: ${name}`, 14, 30);
-      doc.text(`Date: ${date}`, 14, 35);
-      doc.text(`Reference: ${reference}`, 14, 40);
+      doc.text(`Name: ${name}`, 14, detailsStartY);
+      doc.text(`Date: ${date}`, 14, detailsStartY + 5);
+      doc.text(`Reference: ${reference}`, 14, detailsStartY + 10);
 
       doc.setFont("helvetica", "bold");
-      doc.text("Summary", 14, 50);
+      doc.text("Summary", 14, summaryTitleY);
       doc.setFont("helvetica", "normal");
       getPdfTextLines(plan).forEach((line, index) => {
-        doc.text(line, 14, 56 + index * 5);
+        doc.text(line, 14, summaryLineStartY + index * 5);
       });
 
       const serviceRows = getServiceRows().map((row) => {
@@ -1151,11 +1391,11 @@
 
       if (typeof doc.autoTable === "function") {
         doc.autoTable({
-          startY: 108,
-          head: [["Monthly needs", "Amount (R)"]],
+          startY: 116,
+          head: [["Monthly needs", `Amount (${CURRENCY_SYMBOL})`]],
           body: [
             ["Rent / Mortgage", formatCurrency(readNumber(elements.needRent))],
-            ["Food and living essentials", formatCurrency(readNumber(elements.needFood))],
+            ["Food & living essentials", formatCurrency(readNumber(elements.needFood))],
             ["Bills, travel, petrol, utilities", formatCurrency(readNumber(elements.needBills))],
             ["Debt costs", formatCurrency(readNumber(elements.needDebt))],
             [
@@ -1186,10 +1426,10 @@
 
         doc.autoTable({
           startY: doc.lastAutoTable.finalY + 8,
-          head: [["Services plan", "Hours/week", "Rate", "Monthly total"]],
+          head: [["Side hustle plan", "Hours/week", "Rate", "Monthly total"]],
           body: serviceRows.length ? serviceRows : [["-", "-", "-", "-"]],
           foot: [[
-            "Total planned service income",
+            "Total planned side hustle income",
             "",
             "",
             formatCurrency(plan.servicesMonthly),
@@ -1206,14 +1446,14 @@
         });
       } else {
         doc.setFont("helvetica", "bold");
-        doc.text("Services plan", 14, 116);
+        doc.text("Side hustle plan", 14, 124);
         doc.setFont("helvetica", "normal");
 
         serviceRows.forEach((row, index) => {
           doc.text(
             `${row[0]} | ${row[1]} hrs/wk | ${row[2]} | ${row[3]}`,
             14,
-            122 + index * 6
+            130 + index * 6
           );
         });
       }
@@ -1231,7 +1471,6 @@
   function handleDocumentInput(event) {
     const target = event.target;
     if (!(target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement)) return;
-
     if (mirroredFields[target.id]) syncMirroredField(target);
     if (IDEA_REFRESH_IDS.has(target.id)) queueIdeasRefresh();
     recalcAndPersist();
@@ -1272,10 +1511,6 @@
     if (elements.targetMonthly && !elements.targetMonthly.value) {
       elements.targetMonthly.value = String(DEFAULT_TARGET);
     }
-    if (elements.minHourlyRate && !elements.minHourlyRate.value) {
-      elements.minHourlyRate.value = String(DEFAULT_MIN_RATE);
-    }
-
     nextServiceIndex = Math.max(1, getHighestServiceIndex() + 1);
     updateRemoveButtons();
   }
@@ -1301,7 +1536,7 @@
     wireEvents();
     renderIdeas(true);
 
-    if (!restored) setText(elements.saveStatus, "Private and autosaved locally");
+    if (!restored) setText(elements.saveStatus, "Private & autosaved locally");
     recalcAndPersist({ save: false });
   }
 

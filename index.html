@@ -48,6 +48,7 @@
             <div class="nav-status" id="saveStatus">
               Private & autosaved locally
             </div>
+            <span class="tier-badge" id="tierBadge" hidden>Free Plan</span>
 
             <div class="nav-actions">
               <button class="btn btn-ghost" type="button" id="btnReset">
@@ -859,6 +860,29 @@
           practical planning.
         </p>
       </footer>
+    </div>
+
+    <!-- Upgrade modal (used by free-tier locked features) -->
+    <div class="modal-overlay" id="upgradeModal" role="dialog" aria-modal="true" aria-labelledby="upgradeModalTitle">
+      <div class="modal">
+        <header class="modal-header">
+          <h2 id="upgradeModalTitle">Premium feature</h2>
+          <button class="modal-close-btn" type="button" id="upgradeModalClose" aria-label="Close dialog">&#x2715;</button>
+        </header>
+        <div class="modal-body">
+          <p class="modal-intro">This feature is part of the <strong>Enable G Premium Plan</strong>.</p>
+          <ul class="modal-features">
+            <li>Export your plan as a PDF</li>
+            <li>Unlock all side hustle suggestions</li>
+            <li>Set a custom minimum hourly rate</li>
+            <li>Save & switch between multiple plans</li>
+          </ul>
+          <p class="modal-note">Subscription coming soon &mdash; stay tuned for updates from Enable G.</p>
+        </div>
+        <footer class="modal-footer">
+          <button class="btn btn-primary" type="button" id="upgradeModalConfirm">Got it</button>
+        </footer>
+      </div>
     </div>
 
     <script src="app.js"></script>

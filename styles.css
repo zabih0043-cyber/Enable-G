@@ -1073,6 +1073,55 @@ textarea {
     justify-self: stretch;
   }
 
+  /* Monthly needs table: stack label above input, no horizontal scroll */
+  #needsTable {
+    min-width: 0;
+    width: 100%;
+  }
+
+  #needsTable thead {
+    display: none;
+  }
+
+  #needsTable tbody tr {
+    display: block;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  #needsTable tbody tr:last-child {
+    border-bottom: none;
+  }
+
+  #needsTable tbody td {
+    display: block;
+    padding: 4px 14px;
+    text-align: left;
+    border: none;
+  }
+
+  #needsTable tbody td.right {
+    text-align: left;
+    padding-top: 6px;
+  }
+
+  #needsTable tbody td input {
+    width: 100%;
+  }
+
+  #needsTable tfoot tr {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 14px 4px;
+  }
+
+  #needsTable tfoot th,
+  #needsTable tfoot td {
+    display: block;
+    padding: 0;
+    border: none;
+  }
 }
 
 @media (min-width: 700px) {
